@@ -83,27 +83,38 @@ echo "###     Create agent node        ###"
 echo "####################################"
 echo
 
-docker run -d --name=agent-node -p 22:22 \
+docker run -d --name=api-node \
+-p 3001:3001 \
+-p 2222:22 \
 -e "JENKINS_AGENT_SSH_PUBKEY=$PUBLIC_KEY" \
 --network jenkins \
 jenkins/ssh-agent:latest-jdk17
 
-# copy initial jenkins password to file
-docker cp jenkins-controller:/var/jenkins_home/secrets/initialAdminPassword .
+# # copy initial jenkins password to file
+# docker cp jenkins-controller:/var/jenkins_home/secrets/initialAdminPassword .
 
 
 echo "####################################"
-echo "###     Create agent node        ###"
+echo "###      Create api node         ###"
 echo "####################################"
 
-docker exec -it agent-node bash -c 'apt-get update && yes | apt install curl'
+docker exec -it api-node bash -c 'apt-get update && yes | apt install curl'
 
-docker exec -it agent-node bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash'
+docker exec -it api-node bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash'
 
 #Persist NVM session
-#docker exec -it agent-node bash -c 'echo -e "\nexport NVM_DIR=\"$HOME/.nvm\"\n[ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"\n[ -s \"$NVM_DIR/bash_completion\" ] && \. \"$NVM_DIR/bash_completion\"" >> ~/.bashrc'
+docker exec -it api-node bash -c 'echo -e "\nexport NVM_DIR=\"$HOME/.nvm\"\n[ -s \"$NVM_DIR/nvm.sh\" ] && \. \"$NVM_DIR/nvm.sh\"\n[ -s \"$NVM_DIR/bash_completion\" ] && \. \"$NVM_DIR/bash_completion\"" >> ~/.bashrc'
+docker exec -it api-node bash -c 'echo -e "\nexport NVM_DIR=\"\$HOME/.nvm\"\n[ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"\n[ -s \"\$NVM_DIR/bash_completion\" ] && \. \"\$NVM_DIR/bash_completion\"" >> ~/.bashrc'
 
-docker exec -it agent-node bash -c 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm install 20'
+
+# docker exec -it api-node bash -c 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && nvm install 20'
+
+# Give ownership to project project ---
+docker exec -it api-node bash -c 'chown -R jenkins:jenkins /home/jenkins/workspace/express\ project'
+
+# Set correct folder permissions
+docker exec -it api-node bash -c 'chmod -R 775 /home/jenkins/workspace/express\ project'
+
 
 echo "###########################################################################################"
 echo "### All successfull. Continue to setup jenkins on localhost:8080 and connect agent node ###"
