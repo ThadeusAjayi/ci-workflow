@@ -3,8 +3,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'npm install'
-                sh 'node index.js'
+                sh 'chmod +x ./startshell.sh'
+                sh './startshell.sh'
             }
         }
     }
