@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'api-node' }
+    agent { label 'shiftacare' }
     stages {
         stage('Build') {
             steps {
