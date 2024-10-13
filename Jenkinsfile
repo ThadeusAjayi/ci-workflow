@@ -1,13 +1,19 @@
 pipeline {
-    agent { label 'shiftacare' }
+    agent { label 'shiftacare_agent' }
     stages {
+        stage('Deps Check') {
+            steps {
+                sh 'echo deps check'
+                echo 'deps check'
+            }
+        }
         stage('Build') {
             steps {
                 sh '''
                     export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh" && nvm install 20
                     . ~/.nvm/nvm.sh
                     npm install
-                    npx pm2 start index.js --name express --watch --no-daemon
+                    npx pm2 start index.js --name express --watch
                 '''
             }
         }
